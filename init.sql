@@ -131,14 +131,14 @@ VALUES
 -- Таблица candidates
 INSERT INTO candidates (user_id, phone, telegram_id, education, experience, portfolio_links, project_description_candidate)
 VALUES
-(1, '+79161234567', '@ivanov', 'Высшее', '5 лет в разработке ПО', 'https://portfolio-ivanov.ru', 'Разработка приложения для анализа данных'),
-(2, '+79261234567', '@smirnova', 'Высшее', '3 года в дизайне', 'https://portfolio-smirnova.ru', 'Создание дизайн-проектов для веб-платформ');
+(1, '+79161234567', '@ivanov', 'Высшее', '5 лет', 'https://portfolio-ivanov.ru', 'Сражение 3 на 3'),
+(2, '+79261234567', '@smirnova', 'Высшее', '3 года', 'https://portfolio-smirnova.ru', 'Соренования 5 на 5');
 
 -- Таблица employers
 INSERT INTO employers (user_id, company_name, description, website, legal_address, project_description)
 VALUES
-(3, 'ООО "ТехСтар"', 'Компания-разработчик ПО', 'https://techstar.ru', 'г. Москва, ул. Тверская, д. 10', 'Проектирование сложных IT-систем'),
-(4, 'ООО "ДизайнПро"', 'Дизайн-студия', 'https://designpro.ru', 'г. Санкт-Петербург, Невский проспект, д. 20', 'Разработка брендинга и визуальной айдентики');
+(3, 'MOUZE', 'Российская команда', 'https://techstar.ru', 'г. Москва, ул. Тверская, д. 10', 'игра в CLASH ROYAL'),
+(4, 'TEAM SPIRIT', 'Чемпионы Движения вверх 2020', 'https://designpro.ru', 'г. Санкт-Петербург, Невский проспект, д. 20', 'игра в DOTA 2');
 
 -- Таблица vacancies
 INSERT INTO vacancies (
@@ -147,11 +147,11 @@ INSERT INTO vacancies (
 )
 VALUES
 (
-    1, 'Программист Python', 'Москва', 'Разработка и поддержка приложений', 100000.00, 150000.00, 'RUB', 'Полная занятость', 
+    1, 'Лига чемпионов', 'Москва', 'Соренование 5 на 5', 100000.00, 150000.00, 'RUB', 'Полная занятость', 
     '2/2', 'высшее', 'от 5 лет', 'hr-agent1@mail.ru', '89991234567', 'Михаил Иванович'
 ),
 (
-    2, 'Графический дизайнер', 'Санкт-Петербург', 'Создание графического контента для брендов', 80000.00, 120000.00, 'RUB', 'Удаленная работа', 
+    2, 'Движение верх', 'Санкт-Петербург', 'Сражение 3 на 3', 80000.00, 120000.00, 'RUB', 'Удаленная работа', 
     '5/2', 'высшее', 'без опыта', 'hr-agent2@mail.ru', '89997654321', 'Иван Михайлович'
 );
 -- Таблица skills
@@ -206,8 +206,8 @@ VALUES
 -- Таблица resumes
 INSERT INTO resumes (candidate_id, location, birth_date, citizenship, profession, salary_max)
 VALUES
-(1, 'Москва', '15.05.1995', 'Россия', 'C++ программист', 120000),
-(2, 'Казань', '23.07.2005', 'Россия', 'Python программист', 90000);
+(1, 'Москва', '15.05.1995', 'Россия', 'CLASH OF CLANS', 120000),
+(2, 'Казань', '23.07.2005', 'Россия', 'FREE FIRE', 90000);
 
 -- Таблица resume_applications
 INSERT INTO resume_applications (employer_id, resume_id, status)
