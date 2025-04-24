@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'nonce-<%= nonce %>' https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:8000 https://example.com; img-src 'self' data:;">
+    <title>Создать турнир</title>
+    <link rel="stylesheet" href="/assets/css/style_common.css">
+    <link rel="stylesheet" href="/assets/css/style_add_vacancy.css">
+</head>
+<body>
+    <style>
+        input[disabled] {
+            background-color: #f0f0f0;
+            color: #000;
+            cursor: not-allowed;
+        }
+    </style>
+    
+    <div class="wrapper">
+
+        <%- include('partials/header') %>
+
+        <div class="container">
+            <main>
+                <section class="create-vacancy-section">
+                    <a href="/auth/profile"><button type="submit" id="backButton" class="submit-button">Назад</button></a>
+                    <form id="vacancyForm" action="/vacancy" method="post">
+                        <label for="title">Название турнира:</label>
+                        <input type="text" id="title" name="title" ><br>
+
+                        <label for="companyName">Название команды:</label>
+                        <input type="text" id="companyName" name="companyName" value="<%= employer.company_name %>" disabled><br>
+                        
+                        <label for="description">Описание деятельности:</label>
+                        <textarea id="description" name="description" ></textarea><br>
+
+                        <label for="salary_max">Предлагаемый выйгрыш:</label>
+                        <input type="text" id="salary_max" name="salary_max" ><br>
+
+                        <label for="education">Требуемое образование:</label>
+                        <select id="education" name="education" >
+                            <option value="Среднее">Среднее</option>
+                            <option value="Среднее специальное">Среднее специальное</option>
+                            <option value="Неоконченное высшее">Неоконченное высшее</option>
+                            <option value="Высшее">Высшее</option>
+                            <option value="Бакалавр">Бакалавр</option>
+                            <option value="Магистр">Магистр</option>
+                            <option value="Кандидат наук">Кандидат наук</option>
+                            <option value="Доктор наук">Доктор наук</option>
+                        </select><br>
+
+                        <label for="experience">Требуемый опыт киберспорта:</label>
+                        <textarea id="experience" name="experience" placeholder="Опишите требуемый опыт работы"></textarea><br>
+
+                        <div id="skillsFields">
+                            <label for="skills">Необходимые дисциплины:</label>
+                            
+                            <div id="selectedSkills">
+                                <label>Выбранные дисциплины:</label>
+                                <div id="selectedSkillsList"></div>
+                            </div>
+                        </div>
+
+                        <label for="location">Город:</label>
+                        <input type="text" id="location" name="location" ><br>
+
+                        <label for="employment_type">Тип занятости:</label>
+                        <select id="employment_type" name="employment_type" >
+                            <option value="Полная занятость">Полная занятость</option>
+                            <option value="Частичная занятость">Частичная занятость</option>
+                            <option value="Удаленная работа">Абсолютно свободен</option>
+                            <option value="Стажировка">Подрабатываю</option>
+                            <option value="Проектная работа">Работаю из дома</option>
+                        </select><br>
+
+                        <label for="schedule">График работы:</label>
+                        <input type="text" id="schedule" name="schedule" ><br>
+
+                        <label for="contact_email">Email HR:</label>
+                        <input type="text" id="contact_email" name="contact_email" ><br>
+
+                        <label for="contact_phone">Телефон HR:</label>
+                        <input type="text" id="contact_phone" name="contact_phone" ><br>
+
+                        <label for="contact_person">ФИО HR:</label>
+                        <input type="text" id="contact_person" name="contact_person" ><br>
+
+                        <button type="submit" id="submitVacancyButton" class="submit-button">Сохранить вакансию</button>
+                    </form>
+                </section>
+            </main> 
+        </div>     
+    </div>
+
+    <%- include('partials/footer') %>
+    
+</body>
+</html>

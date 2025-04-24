@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отклики на турниры</title>
+    <link rel="stylesheet" href="/assets/css/style_common.css">
+    <link rel="stylesheet" href="/assets/css/style_responses_employer.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <%- include('partials/header') %>
+
+                <main>
+                    <!-- Условный блок для кандидата -->
+                    <a href="/auth/profile"><button type="submit" id="backButton"
+                            class="submit-button">Назад</button></a>
+                    <section class="responses-section">
+                        <h2>Ваши отклики</h2>
+                        <div class="responses-list">
+                            <% if (resumes && resumes.length> 0) { %>
+                                <% resumes.forEach(function(resume) { %>
+                                    <div class="response">
+                                        <h4>Заявка кандидата</h4>
+                                        <% if (resume) { %>
+                                            <p><strong>Местоположение:</strong>
+                                                <%= resume.location %>
+                                            </p>
+                                            <p><strong>Дата рождения:</strong>
+                                                <%= resume.birth_date %>
+                                            </p>
+                                            <p><strong>Гражданство:</strong>
+                                                <%= resume.citizenship %>
+                                            </p>
+                                            <p><strong>Профессия:</strong>
+                                                <%= resume.profession %>
+                                            </p>
+                                            <p><strong>Максимальный выйгрыш:</strong>
+                                                <%= resume.salary_max %>
+                                            </p>
+                                            <p><strong>Дата отклика:</strong>
+                                                <%= resume.created_at %>
+                                            </p>
+                                            <% } else { %>
+                                                <p>Заявка не найдена.</p>
+                                                <% } %>
+                                    </div>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <h2>Откликов пока нет.</h2>
+                                            <% } %>
+                        </div>
+
+                    </section>
+
+                    <!-- Условный блок для работодателя -->
+                    <div class="employer-view">
+                        <h2>Отклики на ваши турниры</h2>
+                        <div class="responses-list">
+                            <% if (vacancies && vacancies.length> 0) { %>
+                                <% vacancies.forEach(function(vacancy) { %>
+                                    <div class="response">
+                                        <h3>Вакансия: <%= vacancy.title %>
+                                        </h3>
+                                        <p><strong>Описание: </strong>
+                                            <%= vacancy.description %>
+                                        </p>
+                                        <p><strong>Требуемое образование: </strong>
+                                            <%= vacancy.education %>
+                                        </p>
+                                        <p><strong>Требуемый опыт киберспорта: </strong>
+                                            <%= vacancy.experience %>
+                                        </p>
+
+                                        <h3>Кандидаты</h3>
+
+                                        <% if (vacancy.candidates && vacancy.candidates.length> 0) { %>
+                                            <% vacancy.candidates.forEach(function(candidate, candidateIndex) { %>
+                                                <div id="response-<%= candidateIndex %>">
+                                                    <p><strong>Кандидат: </strong>
+                                                        <%= candidate.candidateUser ? candidate.candidateUser.first_name
+                                                            + ' ' + candidate.candidateUser.last_name : 'Не указано' %>
+                                                    </p>
+                                                    <p><strong>Образование: </strong>
+                                                        <%= candidate.education || 'Не указано' %>
+                                                    </p>
+                                                    <p><strong>Про свой опыт: </strong>
+                                                        <%= candidate.experience || 'Не указано' %>
+                                                    </p>
+                                                    <p><strong>Портфолио: </strong>
+                                                        <%= candidate.portfolio_links || 'Не указано' %>
+                                                    </p>
+                                                    <p><strong>Описание турниров: </strong>
+                                                        <%= candidate.project_description_candidate || 'Не указано' %>
+                                                    </p>
+                                                    <p><strong>Дата отклика:</strong>
+                                                        <%= candidate.application ? candidate.application.applied_at
+                                                            : 'Не указано' %>
+                                                    </p>
+                                                    <p><strong>Статус:</strong>
+                                                        <% if (candidate.application &&
+                                                            candidate.application.status==='pending' ) { %>
+                                                            Ожидает рассмотрения
+                                                            <% } else { %>
+                                                                Принят
+                                                                <% } %>
+                                                    </p>
+                                                    <% if (candidate.application &&
+                                                            candidate.application.status==='pending' ) { %>
+                                                    <div class="response-actions">
+                                                        <form action="/vacancy_application/accept-response" method="POST">
+                                                            <input type="hidden" name="responseId" value="<%= candidate.application.application_id %>">
+                                                            <button type="submit" class="accept-button">Принять</button>
+                                                        </form>
+                                                        <button class="reject-button"
+                                                            onclick="rejectResponse('response-<%= candidateIndex %>')">Отклонить</button>
+                                                    </div>
+                                                    <% } else { %>
+                                                        <p><strong>Телефон кандидата: </strong>
+                                                            <%= candidate.phone %>
+                                                        </p>
+                                                        <p><strong>Телеграмм кандидата: </strong>
+                                                            <%= candidate.telegram_id %>
+                                                        </p>
+                                                        <% } %>
+                                                </div>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <p>Нет кандидатов для этого турнира.</p>
+                                                        <% } %>
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <h2>Откликов пока что нет, но мы уверены они скоро появятся.</h2>
+                                            <% } %>
+                        </div>
+                    </div>
+                </main>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+
+        <script>
+            function rejectResponse(responseId) {
+                const responseElement = document.getElementById(responseId);
+                if (responseElement) {
+                    responseElement.remove();
+                    checkForResponses();
+                }
+            }
+
+            function checkForResponses() {
+                const responsesSections = document.querySelectorAll('.responses-section');
+                responsesSections.forEach(section => {
+                    const responsesList = section.querySelector('.responses-list');
+                    const noResponsesMessage = section.querySelector('.no-responses-message');
+                    if (responsesList.children.length === 0) {
+                        noResponsesMessage.style.display = 'block';
+                    } else {
+                        noResponsesMessage.style.display = 'none';
+                    }
+                });
+            }
+
+            // Проверка при загрузке страницы
+            document.addEventListener('DOMContentLoaded', checkForResponses);
+        </script>
+</body>
+
+</html>

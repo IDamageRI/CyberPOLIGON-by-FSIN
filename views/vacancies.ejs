@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Турниры</title>
+    <link rel="stylesheet" href="/assets/css/style_common.css">
+    <link rel="stylesheet" href="/assets/css/style_vacancies.css">
+</head>
+<body>
+    <div class="wrapper">
+        <%- include('partials/header') %>
+        
+        <div class="container">
+            <main>
+                <% if (user) { %>
+                    <% if (user.user_type === 'employer') { %>
+                        <a href="/auth/profile"><button type="submit" id="backButton" class="submit-button">Назад</button></a>
+                    <% } %>
+                <% } %>
+                <h3>Вакансии</h3>
+                <section class="vacancies-section">
+                    <button id="filterButton" class="filter-button">Фильтр</button>
+                    <div id="filterOptions" class="filter-options" style="display: none;">
+                        <label for="salaryFilter">Выйгрыш:</label>
+                        <input type="number" id="salaryFilter" placeholder="Минимальная зарплата">
+                        <div class="checkbox-list" id="checkboxList">
+                            <% skills.forEach(function(skill) { %>
+                                <label><input type="checkbox" value="<%= skill.skill_name %>"> <%= skill.skill_name %></label><br>
+                            <% }) %>
+                        </div>
+                        <button id="applyFilter" class="apply-filter-button">Применить</button>
+                    </div>
+                    <div id="vacanciesList" class="vacancies-list">
+                        <% vacancies.forEach(function(vacancy, index) { %>
+                            <div class="vacancy" data-salary="<%= vacancy.salary_max %>" data-skills="<%= vacancySkills.filter(skill => skill.vacancy_id === vacancy.vacancy_id).map(skill => skill.skill_name).join(',') %>">
+                                <h3><%= vacancy.title %></h3>
+                                <p><b>Описание деятельности:</b> <%= vacancy.description %></p>
+                                <p><b>Название команды:</b> <%= vacancy.company_name %></p>
+                                <p><b>Требуемый выйгрыш:</b> <%= vacancy.salary_max %> ₽</p>
+                                <p><b>График:</b> <%= vacancy.schedule %></p>
+                                <p><b>Тип занятости:</b> <%= vacancy.employment_type %></p>
+                                <p><b>Требуемое образование:</b> <%= vacancy.education %></p>
+                                <p><b>Требуемый опыт киберспорта:</b> <%= vacancy.experience %></p>
+                                <p><b>Почта для связи:</b> <%= vacancy.contact_email %></p>
+                                <p><b>Телефон для связи:</b> <%= vacancy.contact_phone %></p>
+                                <p><b>Имя человека для связи:</b> <%= vacancy.contact_person %></p>
+                                <p><b>Требуемые дисциплины:</b> </p>
+                                <% vacancySkills.filter(skill => skill.vacancy_id === vacancy.vacancy_id).forEach(function(skill) { %>
+                                    <p><%= skill.skill_name %></p>
+                                <% }) %>
+                                <div class="extended-description" style="display: none;">
+                                    <p>Расширенное описание:</p>
+                                    <p><%= vacancy.extended_description || 'Не указано' %></p>
+                                </div>
+                                <form action="/vacancy_application" method="GET" id="form-<%= index %>">
+                                    <input type="hidden" name="vacancy_id" value="<%= vacancy.vacancy_id %>">
+                                    <% if (user) { %>
+                                        <% if (user.user_type === 'employer') { %>
+                                            <button class="response-button" type="submit">Редактировать</button>
+                                            <button class="response-button" type="submit">Удалить</button>
+                                        <% } else if (user.user_type === 'candidate') { %>
+                                            <button class="response-button" type="submit">Отклик</button>
+                                        <% } %>
+                                    <% } %>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>               
+                </section>            
+            </main>
+        </div>
+    </div>
+    <%- include('partials/footer') %> <!-- Включение footer -->
+    
+    <script src="/scripts/vacanciesFilter.js"></script>
+</body>
+</html>

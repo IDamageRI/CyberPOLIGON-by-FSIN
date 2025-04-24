@@ -1,0 +1,315 @@
+                                <ul>
+                                    <% resume.experience.forEach(exp => { %>
+                                    <li><%= exp.job_title %> в <%= exp.company_name %> (<%= exp.start_date %> - <%= exp.end_date %>)</li>
+                                    <% }) %>
+                                </ul>
+                                <p>Образование:</p>
+                                <ul>
+                                    <% resume.education.forEach(edu => { %>
+                                    <li><%= edu.degree %> в <%= edu.institution %> (<%= edu.start_date %> - <%= edu.end_date %>)</li>
+                                    <% }) %>
+                                </ul>
+
+                                /*INSERT INTO vacancies_extended (
+    vacancy_title,
+    company_name,
+    industry_description,
+    desired_salary,
+    education_requirements,
+    experience_requirements,
+    location,
+    employment_type
+) VALUES
+    (
+        'Инженер-программист',
+        'ТехКомп',
+        'Разработка и поддержка программных приложений',
+        80000.00,
+        'Бакалавр по информатике',
+        '3+ лет опыта',
+        'Сан-Франциско, Калифорния',
+        'Полный рабочий день'
+    ),
+    (
+        'Аналитик данных',
+        'ДатаМаин',
+        'Анализ и визуализация данных',
+        90000.00,
+        'Магистр по статистике',
+        '5+ лет опыта',
+        'Нью-Йорк, Нью-Йорк',
+        'Полный рабочий день'
+    ),
+    (
+        'Менеджер проектов',
+        'ПроектМакс',
+        'Управление проектами и командой',
+        75000.00,
+        'Бакалавр по менеджменту',
+        '4+ лет опыта',
+        'Лос-Анджелес, Калифорния',
+        'Полный рабочий день'
+    ),
+    (
+        'UX/UI Дизайнер',
+        'ДизайнМастер',
+        'Создание пользовательских интерфейсов',
+        70000.00,
+        'Бакалавр по дизайну',
+        '2+ года опыта',
+        'Чикаго, Иллинойс',
+        'Полный рабочий день'
+    );*/
+
+    /*CREATE TABLE vacancies_extended (
+    vacancy_id SERIAL PRIMARY KEY,
+    vacancy_title VARCHAR(100),
+    company_name VARCHAR(100),
+    industry_description TEXT,
+    desired_salary DECIMAL(10, 2),
+    education_requirements VARCHAR(100),
+    experience_requirements VARCHAR(100),
+    location VARCHAR(100),
+    employment_type VARCHAR(20)
+);*/
+
+
+
+
+ДЛЯ АДМИН ПАНЕЛИ
+
+loadTableData('/api/users', 'tableBody');
+
+const candidateData = {
+    user_id: 1,
+    phone: "+7(999)123-45-67",
+    telegram_id: "example_telegram",
+    education: "Высшее",
+    experience: "3 года в IT",
+    portfolio_links: "http://portfolio.example.com",
+    project_description_candidate: "Успешно реализованные проекты."
+};
+
+addRecord('/api/candidates', candidateData);
+
+generateReport('/api/reports/vacancies', { skill_id: 5 });
+
+
+function searchRecords() {
+    const searchId = document.getElementById('searchId').value.trim();
+    const searchEmail = document.getElementById('searchEmail').value.trim();
+    alert(`Ищем записи с ID: ${searchId}, Email: ${searchEmail}`);
+    // Здесь нужно добавить серверную или локальную логику поиска
+}
+
+
+
+<% if (users && users.length > 0) { %>
+                                                <% users.forEach(user => { %>
+                                                  <tr>
+                                                    <td><%= user.user_id %></td>
+                                                    <td><%= user.first_name %></td>
+                                                    <td><%= user.last_name %></td>
+                                                    <td><%= user.email %></td>
+                                                    <td><%= user.phone_num %></td>
+                                                    <td><%= user.password_hash %></td>
+                                                    <td><%= user.user_type %></td>
+                                                    <td><%= user.created_at %></td>
+                                                    <td>
+                                                      <button onclick="editRecord('users', <%= user.user_id %>)">Редактировать</button>
+                                                      <button onclick="deleteRecord('users', <%= user.user_id %>)">Удалить</button>
+                                                    </td>
+                                                  </tr>
+                                                <% }); %>
+
+                                                <button onclick="editRecord('candidates', <%= candidate.candidate_id %>)">Редактировать</button>
+                                                <button onclick="deleteRecord('candidates', <%= candidate.candidate_id %>)">Удалить</button>
+                                      
+                                                            <button onclick="editRecord('employers', <%= employer.employer_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('employers', <%= employer.employer_id %>)">Удалить</button>
+
+                                                        
+                                                            <button onclick="editRecord('vacancies', <%= vacancy.vacancy_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('vacancies', <%= vacancy.vacancy_id %>)">Удалить</button>
+                                                         
+                                                            <button onclick="editRecord('skills', <%= skill.skill_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('skills', <%= skill.skill_id %>)">Удалить</button>
+                                                        
+                                                            <button onclick="editRecord('candidate_skills', <%= cs.candidate_id %>, <%= cs.skill_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('candidate_skills', <%= cs.candidate_id %>, <%= cs.skill_id %>)">Удалить</button>
+                                                        
+                                                            <button onclick="editRecord('vacancy_skills', <%= vs.vacancy_id %>, <%= vs.skill_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('vacancy_skills', <%= vs.vacancy_id %>, <%= vs.skill_id %>)">Удалить</button>
+                                                        
+                                                            <button onclick="editRecord('applications', <%= app.application_id %>, <%= app.candidate_id %>, <%= app.vacancy_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('applications', <%= app.application_id %>, <%= app.candidate_id %>, <%= app.vacancy_id %>)">Удалить</button>
+                                                        
+                                                            <button onclick="editRecord('resumes', <%= r.resume_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('resumes', <%= r.resume_id %>)">Удалить</button>
+                                                        
+                                                            <button onclick="editRecord('resume_applications', <%= ra.application_id %>)">Редактировать</button>
+                                                            <button onclick="deleteRecord('resume_applications', <%= ra.application_id %>)">Удалить</button>
+                                                                         
+<label for="companyName">Название компании:</label>
+<input type="text" id="companyName" name="companyName" value="<%= employer.company_name %>" disabled><br>
+
+<script nonce="<%= nonce %>">
+        // Пример JavaScript для добавления выбранных навыков с уровнем владения
+        const checkboxList = document.getElementById('checkboxList');
+        const selectedSkillsList = document.getElementById('selectedSkillsList');
+
+        checkboxList.addEventListener('change', function(event) {
+            if (event.target.type === 'checkbox') {
+                const skillName = event.target.value;
+
+                // Если чекбокс выбран
+                if (event.target.checked) {
+                    // Создаем элемент для отображения выбранного навыка и его уровня
+                    const skillItem = document.createElement('div');
+                    skillItem.className = 'skill-item';
+                    skillItem.innerHTML = `
+                        <span>${skillName}</span>
+                        <select class="skill-level">
+                            <option value="beginner">Начальный</option>
+                            <option value="intermediate">Средний</option>
+                            <option value="advanced">Продвинутый</option>
+                            <option value="expert">Эксперт</option>
+                        </select>
+                    `;
+                    selectedSkillsList.appendChild(skillItem);
+                } else {
+                    // Убираем элемент из списка выбранных навыков, если чекбокс снят
+                    const skillItems = selectedSkillsList.querySelectorAll('.skill-item');
+                    skillItems.forEach(item => {
+                        if (item.querySelector('span').textContent === skillName) {
+                            item.remove();
+                        }
+                    });
+                }
+            }
+        });
+
+        // Обработка отправки формы
+        document.getElementById('vacancyForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const vacancyData = {
+                title: document.getElementById('vacancyTitle').value,
+                companyName: document.getElementById('companyName').value,
+                description: document.getElementById('vacancyDescription').value,
+                salary_min: document.getElementById('desiredSalary').value,
+                education: document.getElementById('vacancyEducation').value,
+                experience: document.getElementById('experience').value,
+                location: document.getElementById('vacancyLocation').value,
+                employment_type: document.getElementById('employmentType').value,
+                schedule: document.getElementById('schedule').value,
+                contact_email: document.getElementById('contact_email').value,
+                contact_phone: document.getElementById('contact_phone').value,
+                contact_person: document.getElementById('contact_person').value
+            };
+
+            // Отправка данных на сервер
+            fetch('/create-vacancy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(vacancyData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Вакансия успешно создана!');
+                    window.location.reload(); // Перезагрузка страницы
+                } else {
+                    alert('Ошибка при создании вакансии: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Ошибка при создании вакансии');
+            });
+        });
+    </script>
+
+<div class="checkbox-list" id="checkboxList">
+                                <label><input type="checkbox" value="HTML"> HTML</label><br>
+                                <label><input type="checkbox" value="CSS"> CSS</label><br>
+                                <label><input type="checkbox" value="JavaScript"> JavaScript</label><br>
+                                <label><input type="checkbox" value="Python"> Python</label><br>
+                                <label><input type="checkbox" value="Java"> Java</label><br>
+                                <label><input type="checkbox" value="C++"> C++</label><br>
+                                <label><input type="checkbox" value="C#"> C#</label><br>
+                                <label><input type="checkbox" value="Ruby"> Ruby</label><br>
+                                <label><input type="checkbox" value="PHP"> PHP</label><br>
+                                <label><input type="checkbox" value="Swift"> Swift</label><br>
+                                <label><input type="checkbox" value="Kotlin"> Kotlin</label><br>
+                                <label><input type="checkbox" value="Go"> Go</label><br>
+                                <label><input type="checkbox" value="Rust"> Rust</label><br>
+                                <label><input type="checkbox" value="TypeScript"> TypeScript</label><br>
+                                <label><input type="checkbox" value="SQL"> SQL</label><br>
+                                <label><input type="checkbox" value="R"> R</label><br>
+                                <label><input type="checkbox" value="MATLAB"> MATLAB</label><br>
+                                <label><input type="checkbox" value="Perl"> Perl</label><br>
+                                <label><input type="checkbox" value="Scala"> Scala</label><br>
+                                <label><input type="checkbox" value="Haskell"> Haskell</label><br>
+                            </div>
+        res.render('vacancies', { 
+            vacancies: vacancies,
+            skills: skills,
+            vacancySkills: vacancySkills,
+            user: req.user,
+        });
+
+<!-- Условный блок для кандидата -->
+                    <section class="responses-section candidate-view">
+                        <h2>Ваши отклики</h2>
+                        <div class="responses-list">
+                        <% if (resumes && resumes.length > 0) { %>
+                            <% resumes.forEach(function(resume) { %>
+                            <div class="response">
+                                <h4>Резюме кандидата</h4>
+                                <% if (resume) { %>
+                                    <p><strong>Местоположение:</strong> <%= resume.location %></p>
+                                    <p><strong>Дата рождения:</strong> <%= resume.birth_date %></p>
+                                    <p><strong>Гражданство:</strong> <%= resume.citizenship %></p>
+                                    <p><strong>Профессия:</strong> <%= resume.profession %></p>
+                                    <p><strong>Максимальная зарплата:</strong> <%= resume.salary_max %></p>
+                                    <p><strong>Дата отклика:</strong> <%= resume.created_at %></p>
+                                <% } else { %>
+                                    <p>Резюме не найдено.</p>
+                                <% } %>
+                            </div>
+                        </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="no-responses-message">Откликов пока нет.</div>
+                        <% } %>
+                    </section>
+когда передам вакансии
+<section class="responses-section candidate-view">
+    <h2>Ваши отклики на вакансии</h2>
+    <div class="responses-list">
+        <% if (vacancies && vacancies.length > 0) { %>
+            <% vacancies.forEach(function(vacancy) { %>
+                <div class="response">
+                    <h4><%= vacancy.title %></h4>
+                    <% if (vacancy.description) { %>
+                        <p><strong>Описание:</strong> <%= vacancy.description %></p>
+                    <% } %>
+                    <% if (vacancy.employer && vacancy.employer.company_name) { %>
+                        <p><strong>Компания:</strong> <%= vacancy.employer.company_name %></p>
+                    <% } %>
+                    <% if (vacancy.application_status) { %>
+                        <p><strong>Статус отклика:</strong> <%= vacancy.application_status %></p>
+                    <% } %>
+                    <% if (vacancy.applied_at) { %>
+                        <p><strong>Дата отклика:</strong> <%= formatDateString(vacancy.applied_at) %></p>
+                    <% } %>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="no-responses-message">Откликов на вакансии пока нет.</div>
+        <% } %>
+    </div>
+</section>

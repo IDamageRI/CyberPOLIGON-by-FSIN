@@ -1,0 +1,75 @@
+.create-vacancy-section {
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.create-vacancy-section form {
+    display: flex;
+    flex-direction: column;
+}
+
+.create-vacancy-section label {
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.create-vacancy-section input[type="text"],
+.create-vacancy-section input[type="number"],
+.create-vacancy-section textarea,
+.create-vacancy-section select {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.checkbox-list {
+    max-height: 150px; /* Установите максимальную высоту для отображения части списка */
+    overflow-y: auto; /* Добавьте полосу прокрутки */
+    border: 1px solid #000000;
+    padding: 10px;
+    width: 200px;
+    margin-bottom: 25px;
+}
+
+
+#vacancySelectedSkillsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Пространство между элементами */
+}
+
+.skill-item {
+    list-style: none;
+    justify-content: center;
+    display: flex;
+    position: relative;
+    align-items: center;
+    width: 300px;
+    background-color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #000000;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.skill-item .skill-name {
+    margin: 0 auto;
+}
+
+.skill-item select {
+    margin-left: 5px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.submit-button {
+    width: 300px;
+}

@@ -1,0 +1,44 @@
+<header class="container">
+    <a href="/"><span class="logo">CYBER-POLIGON</span></a>
+    <style>
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+    <nav>
+        <ul>
+            <li><a href="/">Главная</a></li>
+            <% if (user) { %>
+                <% if (user.user_type === 'candidate') { %>
+                    <!-- Скрываем кнопку "Резюме" -->
+                    <li><a href="/vacancies">Турниры</a></li>
+                <% } else if (user.user_type === 'employer') { %>
+                    <!-- Скрываем кнопку "Вакансии" -->
+                    <li><a href="/cv">Заявки</a></li>
+                <% } %>
+    
+                <!-- Кнопка с именем пользователя -->
+                <li><a href="/auth/profile"><%= user.email %></a></li>
+            <% } else { %>
+                <li><a href="/vacancies">Турниры</a></li>
+                <li><a href="/cv">Заявки</a></li>
+            <% } %>
+            <li>
+                <button id="toggleButton">Контакты</button>
+                <div id="dropdown" class="dropdown-content">
+                    <ul class="dropdown-list">
+                        <li><a href="tel:+79120214817">+7-925-874-48-17</a></li>
+                        <li><a href="mailto:bydamirproduction@gmail.com">bydamirproduction@gmail.com</a></li>
+                        <li><a href="https://t.me/zxrubx">Telegram</a></li>
+                    </ul>
+                </div>
+            </li>
+            <script src="/scripts/script.js"></script>
+        </ul>
+    </nav>
+</header>

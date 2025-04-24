@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'nonce-<%= nonce %>' https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:8000 https://example.com;">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+    <link rel="stylesheet" href="assets/css/style_common.css">
+    <link rel="stylesheet" href="assets/css/style_register.css">
+    <script nonce="<%= nonce %>" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script nonce="<%= nonce %>" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <%- include('partials/header') %>
+
+        <main>
+            <section class="form-section">
+                <form action="/register" method="post" id="registrationForm">
+                    <label for="role">Выберите роль:</label>
+                    <select id="role" name="user_type" required>
+                        <option value="notSelected">---------</option>
+                        <option value="candidate">Участник</option>
+                        <option value="employer">Организатор</option>
+                    </select>
+
+                    <!-- Общие поля -->
+                    <div id="commonFields" class="disabled">
+                        <label for="name">Имя:</label>
+                        <input type="text" id="name" name="first_name" required disabled>
+
+                        <label for="surname">Фамилия:</label>
+                        <input type="text" id="surname" name="last_name" required disabled>
+
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required disabled placeholder="example@rtxty.com">
+
+                        <label for="phone">Номер телефона:</label>
+                        <input type="tel" id="phone" name="phone_num" pattern="[0-9]{11}" required disabled
+                            placeholder="8__________">
+
+                        <label for="password">Пароль:</label>
+                        <input type="password" id="password" name="password" required disabled
+                            placeholder="Должен состоять минимум из 8 символов">
+
+                        <label for="confirm-password">Подтверждение пароля:</label>
+                        <input type="password" id="confirm-password" name="confirm-password" required disabled>
+                    </div>
+
+                    <!-- Поля для кандидата -->
+                    <div id="candidateFields" style="display: none;">
+                        <label for="tgId">Telegram ID:</label>
+                        <input type="text" id="telegram_id" name="telegram_id">
+
+                        <label for="education">Образование:</label>
+                        <select id="education" name="education" required>
+                            <option value="Без образования">Без образования</option>
+                            <option value="Среднее">Среднее</option>
+                            <option value="Среднее-профессиональное">Среднее-профессиональное</option>
+                            <option value="Неоконченное высшее">Неоконченное высшее</option>
+                            <option value="Высшее">Высшее</option>
+                            <option value="Бакалавр">Бакалавр</option>
+                            <option value="Магистр">Магистр</option>
+                            <option value="Кандидат наук">Кандидат наук</option>
+                            <option value="Доктор наук">Доктор наук</option>
+                        </select>
+
+                        <label for="experience">Опыт киберспорта:</label>
+                        <textarea id="experience" name="experience"></textarea>
+
+                        <label for="skills">Нужные дисциплины:</label>
+                        <div class="checkbox-list" id="checkboxList">
+                            <% skills.forEach(function(skill) { %>
+                                <label>
+                                    <input type="checkbox" name="skills[]" value="<%= skill.skill_id %>">
+                                    <%= skill.skill_name %>
+                                </label><br>
+                            <% }); %>
+                        </div>
+                        
+                        <label for="projects">Описание турниров:</label>
+                        <textarea id="project_description_candidate" name="project_description_candidate"></textarea>
+
+                        <label for="projectLinks">Ссылки на турниры:</label>
+                        <input type="text" id="portfolio_links" name="portfolio_links">
+                    </div>
+
+                    <!-- Поля для работодателя -->
+                    <div id="employerFields" style="display: none;">
+                        <label for="companyName">Название команды:</label>
+                        <input type="text" id="company_name" name="company_name">
+
+                        <label for="companyDescription">Описание деятельности:</label>
+                        <textarea id="description" name="description"></textarea>
+
+                        <label for="legalAddress">Адрес:</label>
+                        <input type="text" id="legal_address" name="legal_address">
+
+                        <label for="companyProjects">Описание турниров:</label>
+                        <textarea id="project_description" name="project_description"></textarea>
+
+                        <label for="projectPhotos">Фото:</label>
+                        <input type="file" id="project_photo" name="project_photo" multiple>
+
+                        <label for="companyLogo">Логотип команды:</label>
+                        <input type="file" id="company_logo" name="company_logo">
+
+                        <label for="companyWebsite">Сайт команды:</label>
+                        <input type="url" id="website" name="website">
+                    </div>
+                    <button type="submit">Зарегистрироваться</button>
+
+                </form>
+                <p>Уже есть аккаунт? <a href="/auth/login">Войти</a></p>
+            </section>
+        </main>
+    </div>
+    
+    <%- include('partials/footer') %>
+
+    <script nonce="<%= nonce %>">
+        document.getElementById('role').addEventListener('change', function () {
+            var candidateFields = document.getElementById('candidateFields');
+            var employerFields = document.getElementById('employerFields');
+            if (this.value === 'notSelected') {
+                candidateFields.style.display = 'none';
+                employerFields.style.display = 'none';
+            } else if (this.value === 'candidate') {
+                candidateFields.style.display = 'block';
+                employerFields.style.display = 'none';
+            } else if (this.value === 'employer') {
+                candidateFields.style.display = 'none';
+                employerFields.style.display = 'block';
+            }
+        });
+    </script>
+    <!-- это скрипт для того чтобы до выбора роли была закрыта возможность ввода информации в поля фио почта номер телефона и тд (общие поля) -->
+    <script nonce="<%= nonce %>">
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('role');
+            const commonFields = document.getElementById('commonFields');
+            const candidateFields = document.getElementById('candidateFields');
+            const employerFields = document.getElementById('employerFields');
+
+            roleSelect.addEventListener('change', function () {
+                if (roleSelect.value === 'notSelected') {
+                    commonFields.classList.add('disabled');
+                    commonFields.querySelectorAll('input, textarea').forEach(input => input.disabled = true);
+                    candidateFields.style.display = 'none';
+                    employerFields.style.display = 'none';
+                } else {
+                    commonFields.classList.remove('disabled');
+                    commonFields.querySelectorAll('input, textarea').forEach(input => input.disabled = false);
+
+                    if (roleSelect.value === 'candidate') {
+                        candidateFields.style.display = 'block';
+                        employerFields.style.display = 'none';
+                    } else if (roleSelect.value === 'employer') {
+                        candidateFields.style.display = 'none';
+                        employerFields.style.display = 'block';
+                    }
+                }
+            });
+
+            // Инициализация Select2 для ключевых навыков
+            /*$('#skills').select2({
+                placeholder: 'Выберите ключевые навыки',
+                allowClear: true,
+                width: '100%',
+                templateResult: function (data, container) {
+                    if (data.element) {
+                        return $('<span><input type="checkbox" checked="checked" /> ' + data.text + '</span>');
+                    }
+                    return data.text;
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                }
+            });*/
+        });
+    </script>
+    <script nonce="<%= nonce %>">
+        document.getElementById('registrationForm').addEventListener('submit', function (event) {
+            // Включаем все поля перед отправкой формы
+            document.querySelectorAll('#commonFields input, #commonFields textarea').forEach(input => input.disabled = false);
+            document.querySelectorAll('#candidateFields input, #candidateFields textarea').forEach(input => input.disabled = false);
+            document.querySelectorAll('#employerFields input, #employerFields textarea').forEach(input => input.disabled = false);
+        });
+    </script>
+    <script nonce="<%= nonce %>">
+        // Функция для отправки запроса на регистрацию
+        async function registerUser(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // Обработка множественных значений чекбоксов
+            const skills = formData.getAll('skills[]'); // Получаем все выбранные навыки
+            data.skills = skills; // Добавляем массив навыков в данные
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Перенаправление на страницу профиля
+                    //window.location.href = '/profile.html';
+                    window.location.href = '/auth/login';
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred during registration');
+            }
+        }
+
+        // Привязка функции к форме регистрации
+        document.getElementById('registrationForm').addEventListener('submit', registerUser);
+    </script>
+</body>
+
+</html>

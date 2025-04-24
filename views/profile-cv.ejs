@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои резюме</title>
+    <link rel="stylesheet" href="assets/css/style_common.css">
+    <link rel="stylesheet" href="assets/css/style_profile-cv.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <%- include('partials/header') %>
+            
+            <main>
+                <section class="profile-cv-section">
+                    <h3>Мои заявки</h3>
+                    <div id="cvList" class="cv-list">
+                        <% resumes.forEach(function(resume) { %>
+                            <div class="resume" data-salary="<%= resume.expected_salary %>" data-skills="<%= resumeSkills.filter(skill => skill.vacancy_id === vacancy.vacancy_id).map(skill => skill.skill_name).join(',') %>">
+                                <h3><%= vacancy.title %></h3>
+                                <p>Фамилия: <%= user.last_name %></p>
+                                <p>Имя: <%= user.first_name %></p>
+                                <p>Образование: <%= user.education %></p>   
+                                <div id="skillsFields">
+                                    <label for="skills">Нужные дисциплины:</label>
+                                    <div class="checkbox-list" id="checkboxList">
+                                        <label><input type="checkbox" value="HTML"> Dota</label><br>
+                                        <label><input type="checkbox" value="CSS"> CS2</label><br>
+                                        <label><input type="checkbox" value="JavaScript"> Rainbow Six Siege</label><br>
+                                        <label><input type="checkbox" value="Python"> League of Legends</label><br>
+                                        <label><input type="checkbox" value="Java"> Apex Leagends</label><br>
+                                        <label><input type="checkbox" value="C++"> Valorant</label><br>
+                                        <label><input type="checkbox" value="C#"> Streat Fighter</label><br>
+                                        <label><input type="checkbox" value="Ruby"> MLBB</label><br>
+                                        <label><input type="checkbox" value="PHP"> PUBG: Buttlegrunds</label><br>
+                                        <label><input type="checkbox" value="Swift"> Overwatch</label><br>
+                                        <label><input type="checkbox" value="Kotlin"> Marvel Rivals</label><br>
+                                        <label><input type="checkbox" value="Go"> Мир танков</label><br>
+                                        <label><input type="checkbox" value="Rust"> StarCraft 2</label><br>
+                                        <label><input type="checkbox" value="TypeScript"> Halo</label><br>
+                                        <label><input type="checkbox" value="SQL"> Clash Royal</label><br>
+                                        <label><input type="checkbox" value="R"> Clash of Clans</label><br>
+                                        <label><input type="checkbox" value="MATLAB"> Warface</label><br>
+                                        <label><input type="checkbox" value="Perl"> Standoff 2</label><br>
+                                        <label><input type="checkbox" value="Scala"> Brawl Stars</label><br>
+                                        <label><input type="checkbox" value="Haskell"> Free Fire</label><br>
+                                    </div>
+                                    <div id="selectedSkills">
+                                        <label>Выбранные дисциплины:</label>
+                                        <div id="selectedSkillsList"></div>
+                                    </div>
+                                </div>
+                                <% vacancySkills.filter(skill => skill.vacancy_id === vacancy.vacancy_id).forEach(function(skill) { %>
+                                    <p><%= skill.skill_name %></p>
+                                <% }) %>
+                                <div class="extended-description" style="display: none;">
+                                    <p>Расширенное описание:</p>
+                                    <p><%= vacancy.extended_description || 'Не указано' %></p>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                    
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+</body>
+</html>

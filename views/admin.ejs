@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="assets/css/style_admin.css">
+    <link rel="stylesheet" href="assets/css/style_common.css">
+    <script src="scripts/admin.js"></script>
+    <script src="scripts/admin_panel.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="container">
+            <span class="logo"><a href="/">CYBER-POLIGON</a></span>
+        </header>
+
+        <div class="container">
+            <main>
+                <section class="admin-section">
+                    <h3>Панель администратора</h3>
+                    <ul>
+                        <!-- Список таблиц -->
+                        <li>
+                            <button onclick="toggleTable('usersTable')">Таблица: Users</button>
+                            <div id="usersTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormUsers')">Поиск записей</button>
+                                    <button onclick="toggleElement('userFilterForm')">Фильтры</button>
+                                    <button onclick="toggleElement('userSortMenu')">Сортировка</button>    
+                                </div>
+
+                                <div id="userFilterForm" style="display: none;">                            
+                                    <label for="nameFilter">Имя:</label>
+                                    <input type="text" id="nameFilter" oninput="applyFilters('userFilterForm')" placeholder="Введите имя">
+                        
+                                    <label for="surnameFilter">Фамилия:</label>
+                                    <input type="text" id="surnameFilter" oninput="applyFilters('userFilterForm')" placeholder="Введите фамилию">
+                        
+                                    <label for="roleFilter">Роль:</label>
+                                    <select id="roleFilter" onchange="applyFilters('userFilterForm')">
+                                        <option value="">Все</option>
+                                        <option value="candidate">Кандидат</option>
+                                        <option value="employer">Организатор</option>
+                                    </select>
+                                </div>
+                            
+                                <div id="userSortMenu" style="display: none;">
+                                    <label for="sortOptions">Сортировать по:</label>
+                                    <select id="sortOptions" onchange="applySort('usersBody')">
+                                        <option value="0_asc">User ID ↑</option>
+                                        <option value="0_desc">User ID ↓</option>
+                                        <option value="1_asc">Имя ↑</option>
+                                        <option value="1_desc">Имя ↓</option>
+                                        <option value="2_asc">Фамилия ↑</option>
+                                        <option value="2_desc">Фамилия ↓</option>
+                                        <option value="6_asc">Роль ↑</option>
+                                        <option value="6_desc">Роль ↓</option>
+                                    </select>
+                                </div>
+
+                                <div id="searchFormUsers" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchId">User ID:</label>
+                                    <input type="text" name="searchId" placeholder="Введите User ID">
+                                    <br>
+                                    <label for="searchEmail">Email:</label>
+                                    <input type="text" name="searchEmail" placeholder="Введите Email">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormUsers')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>User ID</th>
+                                                <th>Имя</th>
+                                                <th>Фамилия</th>
+                                                <th>Email</th>
+                                                <th>Номер телефона</th>
+                                                <th>Пароль</th>
+                                                <th>Роль</th>
+                                                <th>Дата регистрации</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="usersBody">
+                                            <% if (users && users.length > 0) { %>
+                                                <% users.forEach(user => { %>
+                                                  <tr>
+                                                    <td><%= user.user_id %></td>
+                                                    <td><%= user.first_name %></td>
+                                                    <td><%= user.last_name %></td>
+                                                    <td><%= user.email %></td>
+                                                    <td><%= user.phone_num %></td>
+                                                    <td><%= user.password_hash %></td>
+                                                    <td><%= user.user_type %></td>
+                                                    <td><%= user.created_at %></td>
+                                                    <td>
+                                                        <% if (typeof user !== 'undefined' && typeof user.user_id !== 'undefined') { %>
+                                                            <form action="/admin/users/<%= user.user_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        <% } else { %>
+                                                            <span>Нет идентификатора пользователя</span>
+                                                        <% } %>
+                                                    </td>
+                                                  </tr>
+                                                <% }); %>
+                                              <% } else { %>
+                                                <tr>
+                                                  <td colspan="9">Нет данных</td>
+                                                </tr>
+                                              <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const editButtons = document.querySelectorAll('.edit-user');
+                                const deleteButtons = document.querySelectorAll('.delete-user');
+                    
+                                editButtons.forEach(button => {
+                                    button.addEventListener('click', function() {
+                                        const userId = this.getAttribute('data-user-id');
+                                        editUser(userId);
+                                    });
+                                });
+                    
+                                deleteButtons.forEach(button => {
+                                    button.addEventListener('click', function() {
+                                        const userId = this.getAttribute('data-user-id');
+                                        deleteUser(userId);
+                                    });
+                                });
+                            });
+                    
+                            function editUser(userId) {
+                                // Здесь вы можете добавить логику для редактирования пользователя
+                                console.log('Редактирование пользователя с ID:', userId);
+                                // Например, можно отправить запрос на сервер для редактирования пользователя
+                            }
+                    
+                            function deleteUser(userId) {
+                                // Здесь вы можете добавить логику для удаления пользователя
+                                console.log('Удаление пользователя с ID:', userId);
+                                // Например, можно отправить запрос на сервер для удаления пользователя
+                            }
+                    
+                            function toggleTable(tableId) {
+                                const table = document.getElementById(tableId);
+                                table.style.display = table.style.display === 'none' ? 'block' : 'none';
+                            }
+                    
+                            function toggleElement(elementId) {
+                                const element = document.getElementById(elementId);
+                                element.style.display = element.style.display === 'none' ? 'block' : 'none';
+                            }
+                        </script>
+
+                        <li>
+                            <button onclick="toggleTable('candidatesTable')">Таблица: Candidates</button>
+                            <div id="candidatesTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormCandidates')">Поиск записей</button>
+                                    <button onclick="toggleElement('candidateFilterForm')">Фильтры</button>
+                                    <button onclick="toggleElement('candidateSortMenu')">Сортировка</button> 
+                                </div>
+
+                                <div id="candidateFilterForm" style="display: none;">                            
+                                    <label for="educationFilter">Образование:</label>
+                                    <select id="educationFilter" onchange="applyFilters('candidateFilterForm')">
+                                        <option value="">Все</option>
+                                        <option value="Без образования">Без образования</option>
+                                        <option value="Среднее">Среднее</option>
+                                        <option value="Среднее-профессиональное">Среднее-профессиональное</option>
+                                        <option value="Неоконченное высшее">Неоконченное высшее</option>
+                                        <option value="Высшее">Высшее</option>
+                                        <option value="Бакалавр">Бакалавр</option>
+                                        <option value="Магистр">Магистр</option>
+                                        <option value="Кандидат наук">Кандидат наук</option>
+                                        <option value="Доктор наук">Доктор наук</option>
+                                    </select>
+                                </div>
+
+                                <div id="candidateSortMenu" style="display: none;">
+                                    <label for="sortOptions">Сортировать по:</label>
+                                    <select id="sortOptions" onchange="applySort('candidatesBody')">
+                                        <option value="0_asc">ID кандидата ↑</option>
+                                        <option value="0_desc">ID кандидата ↓</option>
+                                        <option value="1_asc">User ID ↑</option>
+                                        <option value="1_desc">User ID ↓</option>
+                                    </select>
+                                </div>
+
+                                <div id="searchFormCandidates" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchCandidateId">ID кандидата:</label>
+                                    <input type="text" name="searchCandidateId" placeholder="Введите ID кандидата">
+                                    <br>
+                                    <label for="searchUserId">User ID:</label>
+                                    <input type="text" name="searchId" placeholder="Введите User ID">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormCandidates')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID кандидата</th>
+                                                <th>User ID</th>
+                                                <th>Телефон</th>
+                                                <th>Telegram ID</th>
+                                                <th>Образование</th>
+                                                <th>Опыт</th>
+                                                <th>Ссылки на портфолио</th>
+                                                <th>Описание турниров</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="candidatesBody">
+                                            <% if (candidates && candidates.length > 0) { %>
+                                                <% candidates.forEach(candidate => { %>
+                                                    <tr>
+                                                        <td><%= candidate.candidate_id %></td>
+                                                        <td><%= candidate.user_id %></td>
+                                                        <td><%= candidate.phone %></td>
+                                                        <td><%= candidate.telegram_id %></td>
+                                                        <td><%= candidate.education %></td>
+                                                        <td><%= candidate.experience %></td>
+                                                        <td><%= candidate.portfolio_links %></td>
+                                                        <td><%= candidate.project_description_candidate %></td>
+                                                        <td>
+                                                            <form action="/admin/candidates/<%= candidate.candidate_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        <td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="9">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <button onclick="toggleTable('employersTable')">Таблица: Employers</button>
+                            <div id="employersTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormEmployers')">Поиск записей</button>
+                                    <button onclick="toggleElement('employerSortMenu')">Сортировка</button> 
+                                </div>
+
+                                <div id="employerSortMenu" style="display: none;">
+                                    <label for="sortOptions">Сортировать по:</label>
+                                    <select id="sortOptions" onchange="applySort()">
+                                        <option value="0_asc">ID организаторов ↑</option>
+                                        <option value="0_desc">ID организаторов ↓</option>
+                                        <option value="1_asc">User ID ↑</option>
+                                        <option value="1_desc">User ID ↓</option>
+                                    </select>
+                                </div>
+
+                                <div id="searchFormEmployers" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchEmployerId">ID организаторов:</label>
+                                    <input type="text" name="searchEmployerId" placeholder="Введите ID работодателя">
+                                    <br>
+                                    <label for="searchId">User ID:</label>
+                                    <input type="text" name="searchId" placeholder="Введите User ID">
+                                    <br>
+                                    <label for="searchCompanyName">Название команды:</label>
+                                    <input type="text" name="searchCompanyName" placeholder="Введите название компании">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormEmployers')">Найти</button>
+                                </div>
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID организатора</th>
+                                                <th>User ID</th>
+                                                <th>Название команды</th>
+                                                <th>Описание команды</th>
+                                                <th>Веб-сайт</th>
+                                                <th>Адрес</th>
+                                                <th>Лого</th>
+                                                <th>Фото</th>
+                                                <th>Описание турниров</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="employersBody">
+                                            <% if (employers && employers.length > 0) { %>
+                                                <% employers.forEach(employer => { %>
+                                                    <tr>
+                                                        <td><%= employer.employer_id %></td>
+                                                        <td><%= employer.user_id %></td>
+                                                        <td><%= employer.company_name %></td>
+                                                        <td><%= employer.description %></td>
+                                                        <td><%= employer.website %></td>
+                                                        <td><%= employer.legal_address %></td>
+                                                        <td>Company Logo</td>
+                                                        <td>Project Photo</td>
+                                                        <td><%= employer.project_description %></td>
+                                                        <td>
+                                                            <form action="/admin/employers/<%= employer.employer_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="10">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <button onclick="toggleTable('vacanciesTable')">Таблица: Vacancies</button>
+                            <div id="vacanciesTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormVacancies')">Поиск записей</button>
+                                    <button onclick="toggleElement('vacanciesFilterForm')">Фильтры</button>
+                                    <button onclick="toggleElement('vacanciesSortMenu')">Сортировка</button> 
+                                </div>
+
+                                <div id="vacanciesFilterForm" style="display: none;">                            
+                                    <label for="employmentFilter">Тип вступления в команду:</label>
+                                    <select id="employmentFilter" onchange="applyFilters('vacanciesFilterForm')">
+                                        <option value="">Все</option>
+                                        <option value="Полная занятость">Полная занятость</option>
+                                        <option value="Частичная занятость">Частичная занятость</option>
+                                        <option value="Удаленная работа">Абсолютно свободен</option>
+                                        <option value="Стажировка">Подрабатываю</option>
+                                        <option value="Проектная работа">Работаю из дома</option>
+                                    </select>
+                                </div>
+
+                                <div id="vacanciesSortMenu" style="display: none;">
+                                    <label for="sortOptions">Сортировать по:</label>
+                                    <select id="sortOptions" onchange="applySort()">
+                                        <option value="0_asc">ID турнира ↑</option>
+                                        <option value="0_desc">ID турнира ↓</option>
+                                        <option value="1_asc">ID организатора ↑</option>
+                                        <option value="1_desc">ID организатора ↓</option>
+                                        <option value="4_asc">Выйгрыш ↑</option>
+                                        <option value="4_desc">Выйгрыш ↓</option>
+                                    </select>
+                                </div>
+
+                                <div id="searchFormVacancies" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchVacancyId">ID Турнира:</label>
+                                    <input type="text" name="searchVacancyId" placeholder="Введите ID вакансии">
+                                    <br>
+                                    <label for="searchEmployerId">ID организатора:</label>
+                                    <input type="text" name="searchEmployerId" placeholder="Введите ID работодателя">
+                                    <br>
+                                    <label for="searchTitle">Название турнира:</label>
+                                    <input type="text" name="searchTitle" placeholder="Введите название вакансии">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormVacancies')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID турнира</th>
+                                                <th>ID организатора</th>
+                                                <th>Название турнира</th>
+                                                <th>Описание турнира</th>
+                                                <th>Выйгрыш</th>
+                                                <th>Валюта</th>
+                                                <th>Тип вступления в команду</th>
+                                                <th>Локация</th>
+                                                <th>Дата создания</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="vacanciesBody">
+                                            <% if (vacancies && vacancies.length > 0) { %>
+                                                <% vacancies.forEach(vacancy => { %>
+                                                    <tr>
+                                                        <td><%= vacancy.vacancy_id %></td>
+                                                        <td><%= vacancy.employer_id %></td>
+                                                        <td><%= vacancy.title %></td>
+                                                        <td><%= vacancy.description %></td>
+                                                        <td><%= vacancy.salary_max %></td>
+                                                        <td><%= vacancy.currency %></td>
+                                                        <td><%= vacancy.employment_type %></td>
+                                                        <td><%= vacancy.location %></td>
+                                                        <td><%= vacancy.created_at %></td>
+                                                        <td>
+                                                            <form action="/admin/vacancies/<%= vacancy.vacancy_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="11">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <button onclick="toggleTable('skillsTable')">Таблица: Дисциплины</button>
+                            <div id="skillsTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="">Добавить дисциплину</button>
+                                </div>
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID дисциплины</th>
+                                                <th>Название дисциплины</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="skillsBody">
+                                            <% if (skills && skills.length > 0) { %>
+                                                <% skills.forEach(skill => { %>
+                                                    <tr>
+                                                        <td><%= skill.skill_id %></td>
+                                                        <td><%= skill.skill_name %></td>
+                                                        <td>
+                                                            <form action="/admin/skills/<%= skill.skill_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="3">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <button onclick="toggleTable('candidateSkillsTable')">Таблица: Кандидаты</button>
+                            <div id="candidateSkillsTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormCandidateSkills')">Поиск записей</button>
+                                </div>
+
+                                <div id="searchFormCandidateSkills" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchCandidateId">ID кандидата:</label>
+                                    <input type="text" name="searchCandidateId" placeholder="Введите ID кандидата">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormCandidateSkills')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID кандидата</th>
+                                                <th>ID дисциплины</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="candidateSkillsBody">
+                                            <% if (candidateSkills && candidateSkills.length > 0) { %>
+                                                <% candidateSkills.forEach(cs => { %>
+                                                    <tr>
+                                                        <td><%= cs.candidate_id %></td>
+                                                        <td><%= cs.skill_name %></td>
+                                                        <td>
+                                                            <form action="/admin/candidate-skills/<%= cs.candidate_id %>/<%= cs.skill_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="3">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <button onclick="toggleTable('vacancySkillsTable')">Таблица: Турниры</button>
+                            <div id="vacancySkillsTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormVacancySkills')">Поиск записей</button>
+                                </div>
+
+                                <div id="searchFormVacancySkills" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchVacancyId">ID турнира:</label>
+                                    <input type="text" name="searchVacancyId" placeholder="Введите ID вакансии">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormVacancySkills')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID турнира</th>
+                                                <th>ID дисциплины</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="vacancySkillsBody">
+                                            <% if (vacancySkills && vacancySkills.length > 0) { %>
+                                                <% vacancySkills.forEach(vs => { %>
+                                                    <tr>
+                                                        <td><%= vs.vacancy_id %></td>
+                                                        <td><%= vs.skill_name %></td>
+                                                        <td>
+                                                            <form action="/admin/vacancy-skills/<%= vs.vacancy_id %>/<%= vs.skill_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="3">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <button onclick="toggleTable('applicationsTable')">Таблица: Applications</button>
+                            <div id="applicationsTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormApplications')">Поиск записей</button>
+                                    <button onclick="toggleElement('applicationsFilterForm')">Фильтры</button>
+                                    <button onclick="toggleElement('applicationSortMenu')">Сортировка</button> 
+                                </div>
+
+                                <div id="applicationsFilterForm" style="display: none;">                            
+                                    <label for="statusFilter">Статус:</label>
+                                    <select id="statusFilter" onchange="applyFilters('applicationsFilterForm')">
+                                        <option value="">Все</option>
+                                        <option value="pending">Ожидает ответа</option>
+                                        <option value="approved">Принято</option>
+                                        <option value="declined">Отклонено</option>
+                                    </select>
+                                </div>
+
+                                <div id="applicationSortMenu" style="display: none;">
+                                    <label for="sortOptions">Сортировать по:</label>
+                                    <select id="sortOptions" onchange="applySort()">
+                                        <option value="0_asc">ID отклика ↑</option>
+                                        <option value="0_desc">ID отклика ↓</option>
+                                        <option value="1_asc">ID кандидата ↑</option>
+                                        <option value="1_desc">ID кандидата ↓</option>
+                                        <option value="2_asc">ID турнира ↑</option>
+                                        <option value="2_desc">ID турнира ↓</option>
+                                    </select>
+                                </div>
+
+                                <div id="searchFormApplications" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchApplicationId">ID отклика:</label>
+                                    <input type="text" name="searchApplicationId" placeholder="Введите ID отклика">
+                                    <br>
+                                    <label for="searchCandidateId">ID кандидата:</label>
+                                    <input type="text" name="searchCandidateId" placeholder="Введите ID кандидата">
+                                    <br>
+                                    <label for="searchVacancyId">ID турнира:</label>
+                                    <input type="text" name="searchVacancyId" placeholder="Введите ID вакансии">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormApplications')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID отклика</th>
+                                                <th>ID кандидата</th>
+                                                <th>ID турнира</th>
+                                                <th>Статус</th>
+                                                <th>Дата подачи</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="applicationsBody">
+                                            <% if (applications && applications.length > 0) { %>
+                                                <% applications.forEach(app => { %>
+                                                    <tr>
+                                                        <td><%= app.application_id %></td>
+                                                        <td><%= app.candidate_id %></td>
+                                                        <td><%= app.vacancy_id %></td>
+                                                        <td><%= app.status %></td>
+                                                        <td><%= app.applied_at %></td>
+                                                        <td>
+                                                            <form action="/admin/applications/<%= app.application_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <button onclick="toggleTable('resumesTable')">Таблица: Заявки</button>
+                            <div id="resumesTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormResumes')">Поиск записей</button>
+                                    <button onclick="toggleElement('resumesSortMenu')">Сортировка</button> 
+                                </div>
+
+                                <div id="resumesSortMenu" style="display: none;">
+                                    <label for="sortOptions">Сортировать по:</label>
+                                    <select id="sortOptions" onchange="applySort()">
+                                        <option value="0_asc">ID заявки ↑</option>
+                                        <option value="0_desc">ID заявки ↓</option>
+                                        <option value="1_asc">ID кандидата ↑</option>
+                                        <option value="1_desc">ID кандидата ↓</option>
+                                    </select>
+                                </div>
+
+                                <div id="searchFormResumes" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchResumeId">ID заявки:</label>
+                                    <input type="text" name="searchResumeId" placeholder="Введите ID резюме">
+                                    <br>
+                                    <label for="searchCandidateId">ID кандидата:</label>
+                                    <input type="text" name="searchCandidateId" placeholder="Введите ID кандидата">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormResumes')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID заявки</th>
+                                                <th>ID кандидата</th>
+                                                <th>Локация</th>
+                                                <th>Дата рождения</th>
+                                                <th>Гражданство</th>
+                                                <th>Профессия</th>
+                                                <th>Желаемый выйгрыш</th>
+                                                <th>Дата создания</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="resumesBody">
+                                            <% if (resumes && resumes.length > 0) { %>
+                                                <% resumes.forEach(r => { %>
+                                                    <tr>
+                                                        <td><%= r.resume_id %></td>
+                                                        <td><%= r.candidate_id %></td>
+                                                        <td><%= r.location %></td>
+                                                        <td><%= r.birth_date %></td>
+                                                        <td><%= r.citizenship %></td>
+                                                        <td><%= r.profession %></td>
+                                                        <td><%= r.salary_max %></td>
+                                                        <td><%= r.created_at %></td>
+                                                        <td>
+                                                            <form action="/admin/resumes/<%= r.resume_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="9">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+                        
+                        <li>
+                            <button onclick="toggleTable('resumeApplicationsTable')">Таблица: Resume applications</button>
+                            <div id="resumeApplicationsTable" style="display: none;">
+                                <div class="admin-actions">
+                                    <button onclick="toggleElement('searchFormResumeApplications')">Поиск записей</button>
+                                    <button onclick="toggleElement('resumeApplicationsFilterForm')">Фильтры</button>
+                                    <button onclick="toggleElement('resumeApplicationsSortMenu')">Сортировка</button> 
+                                </div>
+
+                                <div id="resumeApplicationsFilterForm" style="display: none;">                            
+                                    <label for="statusFilter">Статус:</label>
+                                    <select id="statusFilter" onchange="applyFilters('resumeApplicationsFilterForm')">
+                                        <option value="">Все</option>
+                                        <option value="pending">Ожидает ответа</option>
+                                        <option value="approved">Принято</option>
+                                        <option value="declined">Отклонено</option>
+                                    </select>
+                                </div>
+
+                                <div id="resumeApplicationsSortMenu" style="display: none;">
+                                    <label for="sortOptions">Сортировать по:</label>
+                                    <select id="sortOptions" onchange="applySort()">
+                                        <option value="0_asc">ID отклика ↑</option>
+                                        <option value="0_desc">ID отклика ↓</option>
+                                        <option value="1_asc">ID организатора ↑</option>
+                                        <option value="1_desc">ID организатора ↓</option>
+                                        <option value="2_asc">ID заявки ↑</option>
+                                        <option value="2_desc">ID заявки ↓</option>
+                                    </select>
+                                </div>
+
+                                <div id="searchFormResumeApplications" style="display: none;">
+                                    <h4>Поиск записей</h4>
+                                    <label for="searchApplicationId">ID отклика:</label>
+                                    <input type="text" name="searchApplicationId" placeholder="Введите ID отклика">
+                                    <br>
+                                    <label for="searchEmployerId">ID организатора:</label>
+                                    <input type="text" name="searchEmployerId" placeholder="Введите ID работодателя">
+                                    <br>
+                                    <label for="searchResumeId">ID заявки:</label>
+                                    <input type="text" name="searchResumeId" placeholder="Введите ID резюме">
+                                    <br>
+                                    <button onclick="searchRecords('searchFormResumeApplications')">Найти</button>
+                                </div>
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID отклика</th>
+                                                <th>ID организатора</th>
+                                                <th>ID заявки</th>
+                                                <th>Статус</th>
+                                                <th>Дата создания</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="resumeApplicationsBody">
+                                            <% if (resumeApplications && resumeApplications.length > 0) { %>
+                                                <% resumeApplications.forEach(ra => { %>
+                                                    <tr>
+                                                        <td><%= ra.application_id %></td>
+                                                        <td><%= ra.employer_id %></td>
+                                                        <td><%= ra.resume_id %></td>
+                                                        <td><%= ra.status %></td>
+                                                        <td><%= ra.applied_at %></td>
+                                                        <td>
+                                                            <form action="/admin/resume-applications/<%= ra.application_id %>/delete" method="POST">
+                                                                <button type="submit">Удалить</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6">Нет данных</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <button onclick="toggleTable('reportTable')">Отчеты</button>
+                            <div id="reportTable" style="display: none;">
+                                <ul class="otchet">
+                                    <li>
+                                        <h4>Стоимость дисциплин по турнирам</h4>
+                                        <div class="table-container">
+                                            <table class="admin-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Дисциплина</th>
+                                                        <th>Средний выйгрыш</th>
+                                                    </tr>
+                                                </thead>
+    
+                                                <tbody>
+                                                    <% skillSalaryData.forEach(row => { %>
+                                                        <tr>
+                                                            <td><%= row.skill %></td>
+                                                            <td><%= row.average_salary %></td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </li>
+    
+                                    <li>
+                                        <h4>Вакансии с заявками</h4>
+                                        <div class="table-container">
+                                            <table class="admin-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID турнира</th>
+                                                        <th>Название турнира</th>
+                                                        <th>Количество заявок</th>
+                                                    </tr>
+                                                </thead>
+    
+                                                <tbody>
+                                                    <% vacanciesWithApps.forEach(row => { %>
+                                                        <tr>
+                                                            <td><%= row.vacancy_id %></td>
+                                                            <td><%= row.vacancy_title %></td>
+                                                            <td><%= row.application_count %></td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </li>
+    
+                                    <li>
+                                        <h4>Турниры без заявок</h4>
+                                        <div class="table-container">
+                                            <table class="admin-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID турнира</th>
+                                                        <th>Название турнира</th>
+                                                        <th>Количество заявок</th>
+                                                    </tr>
+                                                </thead>
+    
+                                                <tbody>
+                                                    <% vacanciesWithoutApps.forEach(row => { %>
+                                                        <tr>
+                                                            <td><%= row.vacancy_id %></td>
+                                                            <td><%= row.vacancy_title %></td>
+                                                            <td><%= row.application_count %></td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+            </main>
+        </div>
+
+        <footer>
+            <div class="blocks container">
+                <div>
+                    <span class="logo">IT-ОФФЕР</span>
+                </div>
+                <div>
+                    <h4>Контакты</h4>
+                    <p>bydamirproduction@gmail.com</p>
+                    <p><a href="https://t.me/zxrubx">Telegram</a></p>
+                </div>
+            </div>
+            <hr>
+            <p>Copyright © 2025 CYBER-POLIGON</p>
+        </footer>
+
+        
+    </div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'nonce-<%= nonce %>' https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:8000 https://example.com; img-src 'self' data:;">
+    <title>Резюме</title>
+    <link rel="stylesheet" href="/assets/css/style_common.css">
+    <link rel="stylesheet" href="/assets/css/style_cv.css">
+</head>
+<body>
+    <div class="wrapper">
+        
+        <%- include('partials/header') %>
+        
+        <div class="container">
+            <main>
+                <h3>Активные заявки</h3>
+                <section class="cvs-section">
+                    <div class="filter-button">
+                        <button id="filterButton">Фильтр</button>
+                    </div>
+                    <div id="filterOptions" class="filter-options" style="display: none;">
+                        <label for="salaryFilter">Выйгрыш:</label>
+                        <input type="number" id="salaryFilter" placeholder="Минимальная зарплата">
+                        <div id="skillsFields">
+                            <label for="skills">Дисциплины:</label>
+                            <div class="checkbox-list" id="checkboxList">
+                                <label><input type="checkbox" value="Dota 2"> Dota 2</label><br>
+                                <label><input type="checkbox" value="CS2"> CS2</label><br>
+                                <label><input type="checkbox" value="Rainbow Six Siege"> Rainbow Six Siege</label><br>
+                                <label><input type="checkbox" value="League of Legends"> League of Legends</label><br>
+                                <label><input type="checkbox" value="Apex Leagends"> Apex Leagends</label><br>
+                                <label><input type="checkbox" value="Valorant"> Valorant</label><br>
+                                <label><input type="checkbox" value="Streat Fighter"> Streat Fighter</label><br>
+                                <label><input type="checkbox" value="MLBB"> MLBB</label><br>
+                                <label><input type="checkbox" value="PUBG: Buttlegrunds"> PUBG: Buttlegrunds</label><br>
+                                <label><input type="checkbox" value="Overwatch"> Overwatch</label><br>
+                                <label><input type="checkbox" value="Marvel Rivals"> Marvel Rivals</label><br>
+                                <label><input type="checkbox" value="Мир танков"> Мир танков</label><br>
+                                <label><input type="checkbox" value="StarCraft 2"> StarCraft 2</label><br>
+                                <label><input type="checkbox" value="Halo"> Halo</label><br>
+                                <label><input type="checkbox" value="Clash Royal"> Clash Royal</label><br>
+                                <label><input type="checkbox" value="Clash of Clans"> Clash of Clans</label><br>
+                                <label><input type="checkbox" value="Warface"> Warface</label><br>
+                                <label><input type="checkbox" value="Standoff 2"> Standoff 2</label><br>
+                                <label><input type="checkbox" value="Brawl Stars"> Brawl Stars</label><br>
+                                <label><input type="checkbox" value="Free Fire"> Free Fire</label><br>
+                            </div>
+                            <div id="selectedSkills">
+                                <label>Выбранные Дисциплины:</label>
+                                <div id="selectedSkillsList"></div>
+                            </div>
+                        </div>
+                        <div class="apply-filter-button">
+                            <button id="applyFilter">Применить</button>
+                        </div>
+                    </div>
+                    <div id="cvList" class="cv-list">
+                        <% resumes.forEach((resume, index) => { %>
+                        <div class="cv" data-salary="<%= resume.salary_max %>" data-skills="<%= resume.skills %>">
+                            <h3><%= resume.first_name %> <%= resume.last_name %></h3>
+                            <p>Профессия: <%= resume.profession %></p>
+                            <p>Желаемый выйгрыш: <%= resume.salary_max %> ₽</p>
+                            <p>Местоположение: <%= resume.location %></p>
+                            <p>Образование: <%= resume.education %></p>
+                            <div class="extended-description" style="display: none;">
+                                <p>Дата рождения: <%= resume.birth_date %></p>
+                                <p>Почта: <%= resume.email %></p>
+                                <p>Телефон: <%= resume.phone %></p>
+                                <p>Телеграмм: <%= resume.telegram_id %></p>
+                                <p>Гражданство: <%= resume.citizenship %></p>
+                                <p>Опыт киберспорта: <%= resume.experience %></p>
+                            </div>
+                            <form action="/resume_application" method="GET" id="form-<%= index %>">
+                                <input type="hidden" name="resume_id" value="<%= resume.resume_id %>">
+                                <button type="submit">Связаться</button>
+                            </form>
+                        </div>
+                        <% }) %>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script nonce="<%= nonce %>">
+        // Пример JavaScript для отображения/скрытия фильтра
+        document.getElementById('filterButton').addEventListener('click', function() {
+            var filterOptions = document.getElementById('filterOptions');
+            if (filterOptions.style.display === 'none') {
+                filterOptions.style.display = 'block';
+            } else {
+                filterOptions.style.display = 'none';
+            }
+        });
+
+        // Пример JavaScript для фильтрации резюме
+        document.getElementById('applyFilter').addEventListener('click', function() {
+            var salaryFilter = document.getElementById('salaryFilter').value;
+            var skillCheckboxes = document.querySelectorAll('#checkboxList input[type="checkbox"]');
+            var selectedSkills = [];
+
+            skillCheckboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    selectedSkills.push(checkbox.value);
+                }
+            });
+
+            var cvs = document.querySelectorAll('.cv');
+
+            cvs.forEach(function(cv) {
+                var salary = cv.getAttribute('data-salary');
+                var skills = cv.getAttribute('data-skills').split(',');
+
+                var salaryMatch = salary <= salaryFilter;
+                var skillsMatch = selectedSkills.every(function(skill) {
+                    return skills.includes(skill);
+                });
+
+                if (salaryMatch && skillsMatch) {
+                    cv.style.display = 'block';
+                } else {
+                    cv.style.display = 'none';
+                }
+            });
+        });
+
+        // Пример JavaScript для отображения расширенного описания резюме
+        document.querySelectorAll('.cv').forEach(function(cv) {
+            cv.addEventListener('click', function() {
+                var extendedDescription = cv.querySelector('.extended-description');
+                if (extendedDescription.style.display === 'none') {
+                    extendedDescription.style.display = 'block';
+                } else {
+                    extendedDescription.style.display = 'none';
+                }
+            });
+        });
+
+        // Пример JavaScript для кнопки "Связаться"
+        document.querySelectorAll('.contact-button').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation(); // Предотвращаем всплытие события
+                alert('Вы связались с кандидатом: ' + button.parentElement.querySelector('h3').textContent);
+            });
+        });
+    </script>
+</body>
+</html>

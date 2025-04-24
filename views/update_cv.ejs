@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'nonce-<%= nonce %>' https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:8000 https://example.com; img-src 'self' data:;">
+    <title>Обновить резюме</title>
+    <link rel="stylesheet" href="/assets/css/style_common.css">
+    <link rel="stylesheet" href="/assets/css/style_add_cv.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <%- include('partials/header') %>
+            <div class="container">
+                <style>
+                    input[disabled] {
+                        background-color: #f0f0f0;
+                        color: #000;
+                        cursor: not-allowed;
+                    }
+                </style>
+                <main>
+                    <h3>Обновить заявку</h3>
+                    <a href="/auth/profile"><button type="submit" id="backButton" class="submit-button">Назад</button></a>
+                    <section class="create-resume-section">
+                        <form id="resumeForm" action="/resume/update" method="POST">
+                            <label for="resumeLastName">Фамилия:</label>
+                            <input type="text" id="resumeLastName" name="lastName" value="<%= user.last_name %>" disabled><br>
+
+                            <label for="resumeFirstName">Имя:</label>
+                            <input type="text" id="resumeFirstName" name="firstName" value="<%= user.first_name %>" disabled><br>
+
+                            <label for="resumeCitizenship">Название профессии:</label>
+                            <input type="text" id="resumeProfession" name="profession" value="<%= resume ? resume.profession : '' %>"><br>
+
+                            <label for="resumeLocation">Город или регион проживания:</label>
+                            <input type="text" id="resumeLocation" name="location" value="<%= resume ? resume.location : '' %>"><br>
+
+                            <label for="resumeBirthDate">Дата рождения:</label>
+                            <input type="text" id="resumeBirthDate" name="birthDate" placeholder="дд.мм.гггг"
+                            value="<%= resume ? resume.birth_date : '' %>"><br>
+
+                            <label for="resumePhone">Номер телефона:</label>
+                            <input type="tel" id="resumePhone" name="phone" value="<%= phone %>" disabled><br>
+
+                            <label for="resumeCitizenship">Гражданство:</label>
+                            <input type="text" id="resumeCitizenship" name="citizenship" value="<%= resume ? resume.citizenship : '' %>"><br>
+                            
+                            <label for="resumeCitizenship">Желаемый выйгрыш:</label>
+                            <input type="text" id="resumeSalary_max" name="salary_max" value="<%= resume ? resume.salary_max : '' %>"><br>
+
+                            <div id="experienceFields">
+                                <label for="experience">Опыт киберспорта:</label>
+                                <div id="experienceList"></div>
+                            </div>
+
+                            <div id="skillsFields">
+                                <label for="skills">Нужные дисциплины:</label>
+                                <div class="checkbox-list" id="checkboxList">
+                                    <label><input type="checkbox" value="HTML"> Dota</label><br>
+                                    <label><input type="checkbox" value="CSS"> CS2</label><br>
+                                    <label><input type="checkbox" value="JavaScript"> Rainbow Six Siege</label><br>
+                                    <label><input type="checkbox" value="Python"> League of Legends</label><br>
+                                    <label><input type="checkbox" value="Java"> Apex Leagends</label><br>
+                                    <label><input type="checkbox" value="C++"> Valorant</label><br>
+                                    <label><input type="checkbox" value="C#"> Streat Fighter</label><br>
+                                    <label><input type="checkbox" value="Ruby"> MLBB</label><br>
+                                    <label><input type="checkbox" value="PHP"> PUBG: Buttlegrunds</label><br>
+                                    <label><input type="checkbox" value="Swift"> Overwatch</label><br>
+                                    <label><input type="checkbox" value="Kotlin"> Marvel Rivals</label><br>
+                                    <label><input type="checkbox" value="Go"> Мир танков</label><br>
+                                    <label><input type="checkbox" value="Rust"> StarCraft 2</label><br>
+                                    <label><input type="checkbox" value="TypeScript"> Halo</label><br>
+                                    <label><input type="checkbox" value="SQL"> Clash Royal</label><br>
+                                    <label><input type="checkbox" value="R"> Clash of Clans</label><br>
+                                    <label><input type="checkbox" value="MATLAB"> Warface</label><br>
+                                    <label><input type="checkbox" value="Perl"> Standoff 2</label><br>
+                                    <label><input type="checkbox" value="Scala"> Brawl Stars</label><br>
+                                    <label><input type="checkbox" value="Haskell"> Free Fire</label><br>
+                                </div>
+                                <div id="selectedSkills">
+                                    <label>Выбранные дисциплины:</label>
+                                    <div id="selectedSkillsList"></div>
+                                </div>
+                            </div>
+                            <label for="resumePhone">Чтобы изменить имя, фамилию или номер телефона измените профиль</label>
+
+                            <button type="submit" id="submitResumeButton" class="submit-button">Обновить резюме</button>
+                        </form>
+                    </section>
+                </main>
+            </div>
+    </div>
+
+    <script nonce="<%= nonce %>">
+        // Пример JavaScript для добавления выбранных навыков с уровнем владения
+        const checkboxList = document.getElementById('checkboxList');
+        const selectedSkillsList = document.getElementById('selectedSkillsList');
+
+        checkboxList.addEventListener('change', function (event) {
+            if (event.target.type === 'checkbox') {
+                const skillName = event.target.value;
+
+                // Если чекбокс выбран
+                if (event.target.checked) {
+                    // Создаем элемент для отображения выбранного навыка и его уровня
+                    const skillItem = document.createElement('div');
+                    skillItem.className = 'skill-item';
+                    skillItem.innerHTML = `
+                                                <span>${skillName}</span>
+                                                <select class="skill-level">
+                                                    <option value="beginner">Начальный</option>
+                                                    <option value="intermediate">Средний</option>
+                                                    <option value="advanced">Продвинутый</option>
+                                                    <option value="expert">Эксперт</option>
+                                                </select>
+                                            `;
+                    selectedSkillsList.appendChild(skillItem);
+                } else {
+                    // Убираем элемент из списка выбранных навыков, если чекбокс снят
+                    const skillItems = selectedSkillsList.querySelectorAll('.skill-item');
+                    skillItems.forEach(item => {
+                        if (item.querySelector('span').textContent === skillName) {
+                            item.remove();
+                        }
+                    });
+                }
+            }
+        });
+
+        // Обработка отправки формы
+        document.getElementById('resumeForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const resumeData = {
+                lastName: document.getElementById('resumeLastName').value,
+                firstName: document.getElementById('resumeFirstName').value,
+                location: document.getElementById('resumeLocation').value,
+                birthDate: document.getElementById('resumeBirthDate').value,
+                phone: document.getElementById('resumePhone').value,
+                citizenship: document.getElementById('resumeCitizenship').value,
+                profession: document.getElementById('resumeProfession').value,
+                salary_max: document.getElementById('resumeSalary_max').value,
+                skills: [],
+                experience: []
+            };
+
+            // Получаем все выбранные навыки с уровнями
+            const skillItems = selectedSkillsList.querySelectorAll('.skill-item');
+            skillItems.forEach(item => {
+                resumeData.skills.push({
+                    name: item.querySelector('span').textContent,
+                    level: item.querySelector('.skill-level').value
+                });
+            });
+
+            console.log('Данные заявки:', resumeData);
+            // Отправка данных на сервер
+            fetch('/resume/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(resumeData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Успех:', data);
+                alert('Заявка успешно обновлено!');
+                window.location.href = '/auth/profile';
+            })
+            .catch((error) => {
+                console.error('Ошибка:', error);
+                alert('Ошибка при обновлении резюме!');
+            });
+        });
+    </script>
+
+    <%- include('partials/footer') %>
+
+</body>
+
+</html>
