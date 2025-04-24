@@ -1,2 +1,2 @@
-﻿# Cyberpoligon
-# BY BEMZH TEAM && FSIN
+﻿# CyberPoligon
+# BY FSIN team

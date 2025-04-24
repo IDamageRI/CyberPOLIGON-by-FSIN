@@ -217,7 +217,7 @@ VALUES
 
 INSERT INTO admins (username, password_hash)
 VALUES
-('admin@admin.admin', '$2b$10$oyi9Qd1cdX6GGBLG2B4yWOtYKN0uqOy5bGQ9JBjJahqKE5p3T9fwS');
+('admin@admin.admin', '$2a$12$hjCcOsWXlPo6wQbvc8AAe.bRTCVcAk/HAhZGrstMZqDaegyIZ8tRy');  --password: Admin-cyberpoligon 
 
 -- представление "стоимости" по заявкам
 CREATE VIEW skill_salary_view AS
